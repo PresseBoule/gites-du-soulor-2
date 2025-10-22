@@ -8,7 +8,7 @@ import { Label } from "./ui/label";
 import { Droplets, Flame } from "lucide-react";
 import { toast } from "sonner@2.0.3";
 import { projectId, publicAnonKey } from "../utils/supabase/info";
-import { addBainReservation, getBainReservations } from '../api/reservations-bain-sauna'
+import { addBainReservation, getBainReservations } from '../api/reservations_bain_sauna'
 import React, { useEffect, useState } from 'react'
 
 interface Booking {
