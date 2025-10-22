@@ -8,6 +8,8 @@ import { Label } from "./ui/label";
 import { Droplets, Flame } from "lucide-react";
 import { toast } from "sonner@2.0.3";
 import { projectId, publicAnonKey } from "../utils/supabase/info";
+import { addBainReservation, getBainReservations } from '../api/reservations-bain-sauna'
+import React, { useEffect, useState } from 'react'
 
 interface Booking {
   id: string;
@@ -22,6 +24,22 @@ const TIME_SLOTS = [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 0, 1
 
 export function BookingCalendar() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  // 🧩 Récupération et ajout des réservations Supabase
+const [reservations, setReservations] = useState<any[]>([])
+
+useEffect(() => {
+  async function loadReservations() {
+    const data = await getBainReservations('bain') // ou 'sauna' selon la page
+    setReservations(data)
+  }
+  loadReservations()
+}, [])
+
+async function handleReserve(date: string, start: string, end: string) {
+  await addBainReservation('bain', date, start, end)
+  alert('Réservation enregistrée ✅')
+}
+
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedSlots, setSelectedSlots] = useState<number[]>([]);
   const [clientName, setClientName] = useState("");
@@ -223,7 +241,20 @@ export function BookingCalendar() {
                     <span className="font-semibold">{selectedSlots.length}</span> créneau{selectedSlots.length > 1 ? 'x' : ''} sélectionné{selectedSlots.length > 1 ? 's' : ''}
                   </div>
                   <Button 
-                    onClick={handleOpenDialog}
+                    onClick={() => {
+  if (!selectedDate || selectedSlots.length === 0) return;
+  const dateStr = selectedDate.toISOString().split('T')[0]; // "2025-10-22"
+  const startHour = selectedSlots[0];
+  const endHour = selectedSlots[selectedSlots.length - 1] + 1;
+
+  // conversion en "HH:00"
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const startTime = `${pad(startHour)}:00`;
+  const endTime = `${pad(endHour)}:00`;
+
+  handleReserve(dateStr, startTime, endTime);
+}}
+
                     className="bg-[#c9a66b] text-[#1f2937] hover:bg-[#b8944d]"
                   >
                     Valider la sélection
